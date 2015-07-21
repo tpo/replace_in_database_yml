@@ -1,0 +1,78 @@
+#!/bin/bash
+
+help() {
+   echo 'usage: replace_database_yml file_name section key value'
+   echo '       replace_database_yml --help'
+   echo
+   echo '  Example:'
+   echo
+   echo '    replace_database_yml database.yml production username my_rail_app_user'
+   exit 1
+}
+
+#set -x # TRACE
+set -e  # exit on error
+set -E  # inherit trap to functions
+
+DEBUG=1
+
+[ "$1" == "--help" ] && help
+[ $# -ne 4 ]         && help
+
+database_yml="$1"
+section="$2"
+key="$3"
+value="$4"
+
+clean_up() {
+  rm "$tmpfile"
+}
+
+printline() {
+  [ $DEBUG ] && echo "$1"
+}
+
+trap clean_up ERR
+
+tmpfile=`mktemp`
+
+section_found=
+replace_executed=
+
+# input at end of loop
+IFS=''
+while read line; do
+
+  if [ ! "$replace_executed" ]; then
+    if [ ! "$section_found" -a "$line" == "$section:" ]; then
+
+      [ $DEBUG ] && echo "________ matching section: _______"
+      section_found=1
+
+    elif [ $section_found ]; then
+      # we're still in the section
+      if [[ "$line" =~ ^\ + ]]; then 
+        if [[ "$line" =~ ^(\ +)$key: ]]; then 
+           replace_executed=1
+           printline "${BASH_REMATCH[1]}$key: $value"
+           continue
+        fi
+
+      # we're no more in the section
+      else
+        echo "could not find '$key:' in section '$section' in '$database_yml'" >&2
+        false # exit with error
+      fi
+      
+    fi
+  fi
+  printline "$line"
+
+done < <( cat "$database_yml" )
+
+if [ "$section_found" != "1" ]; then
+  echo "section '$section' not found in '$database_yml'" >&2
+  false
+fi
+
+mv "$tmlfile" "$database_yml"
