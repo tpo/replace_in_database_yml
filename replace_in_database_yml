@@ -14,7 +14,7 @@ help() {
 set -e  # exit on error
 set -E  # inherit trap to functions
 
-DEBUG=1
+DEBUG=  # set to 1 to debug
 
 [ "$1" == "--help" ] && help
 [ $# -ne 4 ]         && help
