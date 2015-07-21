@@ -30,6 +30,7 @@ clean_up() {
 
 printline() {
   [ $DEBUG ] && echo "$1"
+  echo "$1" >> "$tmpfile"
 }
 
 trap clean_up ERR
