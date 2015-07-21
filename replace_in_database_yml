@@ -75,4 +75,4 @@ if [ "$section_found" != "1" ]; then
   false
 fi
 
-mv "$tmlfile" "$database_yml"
+mv "$tmpfile" "$database_yml"
