@@ -6,7 +6,7 @@ help() {
    echo
    echo '  Example:'
    echo
-   echo '    replace_database_yml database.yml production username my_rail_app_user'
+   echo '    replace_database_yml database.yml production username my_rails_app_user'
    exit 1
 }
 
